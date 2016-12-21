@@ -11,6 +11,15 @@ import (
 )
 
 func main() {
+	defer func() {
+		fmt.Println("DEFER START...")
+		if r := recover(); r != nil {
+			fmt.Print("DONT PANIC! ")
+			fmt.Println("JUST SOME LITTLE BUG: ", r)
+		}
+		fmt.Println("DEFER END...")
+	}()
+
 	fmt.Println(common.SayHello("junneyang"))
 	sum, err := common.Sum()
 	if err != nil {
@@ -18,6 +27,7 @@ func main() {
 		return
 	}
 	fmt.Printf("sum: %v\n", sum)
+	fmt.Println(common.CatStr_New("ABC", "-", "DEF", "-", "GHI"))
 
 	//	log.Println("Press any key to continue...")
 	//	reader := bufio.NewReader(os.Stdin)

@@ -20,9 +20,23 @@ func AddStr(a, b string) (ret string) {
 	return fmt.Sprintf("%v: a: %s, b: %s", MODULE, a, b)
 }
 
+func CatStr(strs ...string) (ret string) {
+	for _, str := range strs {
+		ret += str
+	}
+	return ret
+}
+
+func CatStr_New(strs ...string) (ret string) {
+	return CatStr(strs...)
+}
+
 func Sum() (sum int64, err error) {
 	PARAMA, PARAMB := os.Getenv("PARAMA"), os.Getenv("PARAMB")
 	fmt.Println(AddStr(PARAMA, PARAMB))
+	if PARAMA == "" || PARAMB == "" {
+		panic("ENV Not exist for PARAMA or PARAMB")
+	}
 
 	a, err := strconv.ParseInt(PARAMA, 10, 64)
 	if err != nil {
