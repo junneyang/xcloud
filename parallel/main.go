@@ -34,29 +34,37 @@ func sayStat_2_Worker(str string, ch chan int64) {
 	//	close(ch)
 }
 
-func gen(nums ...int) <-chan int {
+func gen(done <-chan struct{}, nums ...int) <-chan int {
 	out := make(chan int)
 	go func() {
+		defer close(out)
 		for _, i := range nums {
-			out <- i
+			select {
+			case out <- i:
+			case <-done:
+				return
+			}
 		}
-		close(out)
 	}()
 	return out
 }
 
-func square(in <-chan int) <-chan int {
+func square(done <-chan struct{}, in <-chan int) <-chan int {
 	out := make(chan int)
 	go func() {
+		defer close(out)
 		for c := range in {
-			out <- c * c
+			select {
+			case out <- c * c:
+			case <-done:
+				return
+			}
 		}
-		close(out)
 	}()
 	return out
 }
 
-func merge(ins ...<-chan int) <-chan int {
+func merge(done <-chan struct{}, ins ...<-chan int) <-chan int {
 	var wg sync.WaitGroup
 	wg.Add(len(ins))
 	out := make(chan int)
@@ -93,16 +101,29 @@ func merge(ins ...<-chan int) <-chan int {
 	for _, in := range ins {
 		in_copy := in
 		go func() {
+			defer wg.Done()
 			for c := range in_copy {
-				out <- c
+				select {
+				case out <- c:
+				case <-done:
+					return
+				}
 			}
-			wg.Done()
 		}()
 	}
 	go func() {
 		wg.Wait()
 		close(out)
 	}()
+	return out
+}
+
+func genNew(nums ...int) <-chan int {
+	out := make(chan int, len(nums))
+	for _, n := range nums {
+		out <- n
+	}
+	close(out)
 	return out
 }
 
@@ -150,16 +171,42 @@ func main() {
 	//		fmt.Println(c)
 	//	}
 
-	out_new := gen(1, 2, 3, 4, 5)
-	c1 := square(out_new)
-	c2 := square(out_new)
+	done := make(chan struct{})
+	//	defer close(done)
+
+	out_new := gen(done, 1, 2, 3, 4, 5)
+	c1 := square(done, out_new)
+	c2 := square(done, out_new)
 	//	for r1 := range c1 {
 	//		fmt.Println(r1)
 	//	}
 	//	for r2 := range c2 {
 	//		fmt.Println(r2)
 	//	}
-	for r := range merge(c1, c2) {
-		fmt.Println(r)
+	//	for r := range merge(c1, c2) {
+	//		fmt.Println(r)
+	//	}
+	mg := merge(done, c1, c2)
+	fmt.Println(<-mg)
+	fmt.Println(<-mg)
+	fmt.Println(<-mg)
+	close(done)
+	//	fmt.Println(<-mg)
+	//	fmt.Println(<-mg)
+	//	fmt.Println(<-mg)
+	//	fmt.Println(<-mg)
+	for {
+		if msg, closed := <-mg; !closed {
+			fmt.Println("<-mg has closed!")
+			return
+		} else {
+			fmt.Println(msg)
+		}
 	}
+
+	//	gen_new := genNew(1, 2, 3, 4, 5)
+	//	//	close(gen_new)
+	//	for gn := range gen_new {
+	//		fmt.Println(gn)
+	//	}
 }

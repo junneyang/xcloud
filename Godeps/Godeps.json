@@ -10,6 +10,10 @@
 			"ImportPath": "github.com/pkg/errors",
 			"Comment": "v0.8.0-2-g248dadf",
 			"Rev": "248dadf4e9068a0b3e79f02ed0a610d935de5302"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "e31bd588d1077ee66a958c0ad3a235f2084b4195"
 		}
 	]
 }

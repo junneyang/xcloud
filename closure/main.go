@@ -33,4 +33,11 @@ func main() {
 		go v.print()
 	}
 	time.Sleep(3 * time.Second)
+
+	done := make(chan int)
+	close(done)
+	fmt.Println(<-done)
+	fmt.Println(<-done)
+	i, closed := <-done
+	fmt.Println(i, closed)
 }
