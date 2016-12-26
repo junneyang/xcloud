@@ -12,6 +12,10 @@
 			"Rev": "248dadf4e9068a0b3e79f02ed0a610d935de5302"
 		},
 		{
+			"ImportPath": "github.com/tealeg/xlsx",
+			"Rev": "e0f3d7d6cf84b282edb711bc6a23e8dbbd331a13"
+		},
+		{
 			"ImportPath": "golang.org/x/net/context",
 			"Rev": "e31bd588d1077ee66a958c0ad3a235f2084b4195"
 		}
